@@ -13,10 +13,15 @@ link_directories(Binary)
 add_compile_options(-g -O2 -ffunction-sections -fdata-sections -funwind-tables -Wall -Wextra -Werror -Wno-pointer-sign -Wno-unused)
 
 FILE (GLOB ALL_SOURCES   
-        "./src/*.c"		
+        "./src/*.c"
+        "./src/myprintf/*.c"
+
 )
 
-include_directories("./src/")
+include_directories(
+        "./src/"
+        "./src/myprintf"
+)
 
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections")
 
@@ -41,7 +46,7 @@ message("${Escape}[33m${GCC_VER}${Escape}[0m")
 
 # configure_file(Version.h Version.h)
 
-add_executable(my_main ${ALL_SOURCES})            #生成可执行文件，第一个参数为生成的可执行文件名，第二个为源文件的路径
+add_executable(my_linux ${ALL_SOURCES})            #生成可执行文件，第一个参数为生成的可执行文件名，第二个为源文件的路径
 
 # target_link_libraries(Program.bin pthread msntp)
 
