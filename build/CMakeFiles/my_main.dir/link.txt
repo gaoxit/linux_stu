@@ -1,1 +1,0 @@
-gcc    -Wl,--gc-sections CMakeFiles/my_main.dir/src/main.c.o  -o my_main  -L/mnt/e/1Code/my_code/linux_stu/Binary 

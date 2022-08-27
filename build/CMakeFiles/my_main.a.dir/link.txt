@@ -1,1 +1,0 @@
-arm-linux-gnueabi-gcc    -Wl,--gc-sections CMakeFiles/my_main.a.dir/src/main.c.o  -o my_main.a 
