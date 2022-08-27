@@ -1,0 +1,3 @@
+/mnt/e/1Code/my_code/linux_stu/build/CMakeFiles/edit_cache.dir
+/mnt/e/1Code/my_code/linux_stu/build/CMakeFiles/rebuild_cache.dir
+/mnt/e/1Code/my_code/linux_stu/build/CMakeFiles/my_main.dir

@@ -1,0 +1,6 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/mnt/e/1Code/my_code/linux_stu'
+make: Leaving directory '/mnt/e/1Code/my_code/linux_stu'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+

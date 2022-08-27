@@ -1,0 +1,2 @@
+#define GCC_VERSION "@GCC_VER@"
+#define SHA_VERSION "@SHA_VER@"
