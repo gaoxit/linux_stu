@@ -16,6 +16,8 @@ FILE (GLOB ALL_SOURCES
         "./src/*.c"		
 )
 
+include_directories("./src/")
+
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections")
 
 # include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -39,7 +41,7 @@ message("${Escape}[33m${GCC_VER}${Escape}[0m")
 
 # configure_file(Version.h Version.h)
 
-add_executable(my_main ./src/main.c)            #生成可执行文件，第一个参数为生成的可执行文件名，第二个为源文件的路径
+add_executable(my_main ${ALL_SOURCES})            #生成可执行文件，第一个参数为生成的可执行文件名，第二个为源文件的路径
 
 # target_link_libraries(Program.bin pthread msntp)
 
