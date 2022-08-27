@@ -8,14 +8,11 @@ set(CMAKE_C_COMPILER gcc)
 
 link_directories(Binary)
 
-#link_directories(app/fault_process)
-
 add_compile_options(-g -O2 -ffunction-sections -fdata-sections -funwind-tables -Wall -Wextra -Werror -Wno-pointer-sign -Wno-unused)
 
 FILE (GLOB ALL_SOURCES   
         "./src/*.c"
         "./src/myprintf/*.c"
-
 )
 
 include_directories(
@@ -30,11 +27,15 @@ SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections")
 execute_process(COMMAND date +LINUX_%y%m%d_%H%M_V1.01
     OUTPUT_VARIABLE GCC_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+# 注释：
+# 1.OUTPUT_STRIP_TRAILING_WHITESPACE:删除字符串尾的换行符
+# 2.git describe返回git的节点和tag信息；--abbrev=10指定commit号显示10个字符；--dirty如果当前commit之后有新的提交则最后加-dirty表示
 execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMAND git describe --always --abbrev=10 --dirty
-    OUTPUT_VARIABLE SHA_VER OUTPUT_STRIP_TRAILING_WHITESPACE)   #OUTPUT_STRIP_TRAILING_WHITESPACE:删除字符串尾的换行符
+    OUTPUT_VARIABLE SHA_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-string(ASCII 27 Escape)         #将ASCII码转化成对应的字符 TOLOWER(大写->小写)
+#将ASCII码转化成对应的字符，此处ASCII码为27对应的字符为ESC，此外string还可以有一些其他功能，如TOLOWER(大写->小写)
+string(ASCII 27 Escape)
 
 message("${Escape}[33m${GCC_VER}${Escape}[0m")
 message("${Escape}[33m${SHA_VER}${Escape}[0m")
@@ -45,8 +46,7 @@ message("${Escape}[3m${cur_time}${Escape}[0m")
 
 configure_file(version.h version.h)
 
-add_executable(my_linux ${ALL_SOURCES})            #生成可执行文件，第一个参数为生成的可执行文件名，第二个为源文件的路径
+add_executable(my_linux.bin ${ALL_SOURCES})            #生成可执行文件，第一个参数为生成的可执行文件名，第二个为源文件的路径
 
-# target_link_libraries(Program.bin pthread msntp)
-
-#target_link_libraries(Program.bin lib_wire_break_downsampling.a)
+# 使用pthread库
+target_link_libraries(my_linux.bin pthread)
