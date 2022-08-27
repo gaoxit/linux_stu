@@ -29,7 +29,7 @@ execute_process(COMMAND date +LINUX_%y%m%d_%H%M_V1.01
 
 # 注释：
 # 1.OUTPUT_STRIP_TRAILING_WHITESPACE:删除字符串尾的换行符
-# 2.git describe返回git的节点和tag信息；--abbrev=10指定commit号显示10个字符；--dirty如果当前commit之后有新的提交则最后加-dirty表示
+# 2.git describe返回git的节点和tag信息；--abbrev=10指定commit号显示10个字符；--dirty如果当前commit之后有新的提交(本地有修改不提交也会dirty)则最后加-dirty表示
 execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMAND git describe --always --abbrev=10 --dirty
     OUTPUT_VARIABLE SHA_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
