@@ -30,21 +30,20 @@ SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections")
 execute_process(COMMAND date +LINUX_%y%m%d_%H%M_V1.01
     OUTPUT_VARIABLE GCC_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#     COMMAND git describe --always --abbrev=16 --dirty
-#     OUTPUT_VARIABLE SHA_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND git describe --always --abbrev=10 --dirty
+    OUTPUT_VARIABLE SHA_VER OUTPUT_STRIP_TRAILING_WHITESPACE)   #OUTPUT_STRIP_TRAILING_WHITESPACE:删除字符串尾的换行符
 
 string(ASCII 27 Escape)         #将ASCII码转化成对应的字符 TOLOWER(大写->小写)
 
-# message("${Escape}[33m${GCC_VER}${Escape}[0m")
 message("${Escape}[33m${GCC_VER}${Escape}[0m")
+message("${Escape}[33m${SHA_VER}${Escape}[0m")
 
-# message(MESS: "time: ${AAA}")
+execute_process(COMMAND date
+    OUTPUT_VARIABLE cur_time)
+message("${Escape}[3m${cur_time}${Escape}[0m")
 
-
-# message("${Escape}[33m${SHA_VER}${Escape}[0m")
-
-# configure_file(Version.h Version.h)
+configure_file(version.h version.h)
 
 add_executable(my_linux ${ALL_SOURCES})            #生成可执行文件，第一个参数为生成的可执行文件名，第二个为源文件的路径
 
