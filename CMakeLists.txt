@@ -13,11 +13,15 @@ add_compile_options(-g -O2 -ffunction-sections -fdata-sections -funwind-tables -
 FILE (GLOB ALL_SOURCES   
         "./src/*.c"
         "./src/myprintf/*.c"
+        "./src/file_infc/*.c"
+        "./src/utils/*.c"
 )
 
 include_directories(
         "./src/"
         "./src/myprintf"
+        "./src/file_infc"
+        "./src/utils"
 )
 
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections")

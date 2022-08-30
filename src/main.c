@@ -1,7 +1,8 @@
+#define LIB_STU         0   //装载、链接与库学习代码
+#define MY_PRINTF       0   //移植的printf函数功能验证调试
+#define SNPRINTF        0   //snprintf函数功能验证
+#define DIR_FILE        1   //删除文件夹功能验证
 
-
-#define LIB_STU 0
-#define MAIN 1
 
 #if LIB_STU
 //装载、链接与库学习代码
@@ -56,9 +57,37 @@ gxt@LAPTOP-JM9VJP8V:/mnt/e/1Code/my_code/linux_stu/src$ size main.o
 */
 #endif
 
+
+
+#include <stdio.h>
 #include "myprintf.h"
+#include "file_infc.h"
+
 int main(void)  
-{  
-    myprintf("%d, %x, %f, %c, %s, %%, %a\n", 3210, 2748, 3.14, 'B', "hello");  
+{
+    #if MY_PRINTF
+    myprintf("%d, %x, %f, %c, %s, %%, %a\n", 3210, 2748, 3.14, 'B', "hello");
+    #endif
+
+
+    #if SNPRINTF
+    char buffer[10];
+    char* s = "adcdefg";
+    int len = snprintf(buffer, 3, "%s", s);
+
+    printf("len = %d\nbuffer = %s\n", len, buffer);
+    /*运行结果：
+        1.返回值都为s的实际大小，不加最后的\0，本例中为7;
+        2.当传入的size小于s的大小时，实际复制到buffer中的字符个数为size-1
+        3.当传入的size大于s的大小时，实际复制到buffer中的字符为全部s中的字符
+    */
+    #endif
+
+    #if DIR_FILE
+        del_dir("/mnt/e/1Code/my_code/linux_stu/tmp_for_del");
+    #endif
+
+
+
     return 0;  
 }
