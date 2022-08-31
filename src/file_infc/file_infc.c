@@ -7,6 +7,32 @@
 
 bool check_file_exist(char* path)
 {
+    /*
+     * F_OK检查文件是否存在
+     * R_OK检查文件读权限
+     * W_OK检查文件写权
+     * X_OK检查文件执行权限
+     * access返回值：存在返回0，不存在返回-1
+     */
+    return (access(path, F_OK) == 0);   
+}
+
+bool create_dir(char *path)
+{
+    // printf("\033[32m create_dir_func\n\033[0m");
+    if(check_file_exist(path) == true)
+    {
+        return false;
+    }
+    else
+    {
+        if(mkdir(path, ACCESSPERMS) < 0)
+        {
+            printf("\033[31mcreate %s failure\n\033[0m", path);
+            return false;
+        }
+        printf("\033[32mcreate %s is success\n\033[0m", path);
+    }
     return true;
 }
 

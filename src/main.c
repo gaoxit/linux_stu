@@ -85,6 +85,7 @@ int main(void)
 
     #if DIR_FILE
         del_dir("/mnt/e/1Code/my_code/linux_stu/tmp_for_del");
+        create_dir("/mnt/e/1Code/my_code/linux_stu/tmp_for_del/tmp");
     #endif
 
 
