@@ -15,6 +15,8 @@ FILE (GLOB ALL_SOURCES
         "./src/myprintf/*.c"
         "./src/file_infc/*.c"
         "./src/utils/*.c"
+        "./src/task/*.c"
+        "./src/timer/*.c"
 )
 
 include_directories(
@@ -22,6 +24,8 @@ include_directories(
         "./src/myprintf"
         "./src/file_infc"
         "./src/utils"
+        "./src/task"
+        "./src/timer"
 )
 
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections")

@@ -2,7 +2,7 @@
 #define MY_PRINTF       0   //移植的printf函数功能验证调试
 #define SNPRINTF        0   //snprintf函数功能验证
 #define DIR_FILE        1   //删除文件夹功能验证
-
+#define TIMER           1   //timer相关功能单元测试
 
 #if LIB_STU
 //装载、链接与库学习代码
@@ -60,8 +60,11 @@ gxt@LAPTOP-JM9VJP8V:/mnt/e/1Code/my_code/linux_stu/src$ size main.o
 
 
 #include <stdio.h>
+#include <stdint.h>
 #include "myprintf.h"
 #include "file_infc.h"
+#include "hal_timer.h"
+#include <pthread.h>
 
 int main(void)  
 {
@@ -85,10 +88,35 @@ int main(void)
 
     #if DIR_FILE
         del_dir("/mnt/e/1Code/my_code/linux_stu/tmp_for_del");
-        create_dir("/mnt/e/1Code/my_code/linux_stu/tmp_for_del/tmp");
+        create_dir("/mnt/e/1Code/my_code/linux_stu/tmp_for_del/new_dir_create_by_code");
+    #endif
+
+    #if TIMER
+
+    uint64_t now_ms_tick = hal_get_system_tick_in_ms();
+    printf("now_ms_tick = %lu\n",now_ms_tick);
+    uint64_t now_ms_time = hal_get_time_in_ms();
+    printf("now_ms_time = %lu\n",now_ms_time);
+
+    printf("now_ms_time - now_ms_tick = %lu\n", (now_ms_time- now_ms_tick));  //绝对时间减相对时间的差值基本不变
+
+    standard_time_t now_time;
+    hal_get_time_in_standard(&now_time);
+    printf("当前时间是：20%d年%d月%d日 %d:%d:%d,%d\n",
+            now_time.year,
+            now_time.month,
+            now_time.mday,
+            now_time.hour,
+            now_time.min,
+            now_time.s,
+            now_time.ms);
+
+    // hal_sleep_in_s(10);
+
     #endif
 
 
+    pthread_t thread = 0;
 
     return 0;  
 }
