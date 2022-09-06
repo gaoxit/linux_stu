@@ -8,7 +8,7 @@
     if (method(attach) < 0)      \
     {;}
 
-
+#define COUNT(x) (sizeof(x)/sizeof(x[0]))
 
 
 #endif
