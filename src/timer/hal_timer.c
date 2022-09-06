@@ -66,7 +66,6 @@ bool hal_get_time_in_cp56time2a(cp56time2a_t *cur_time_in_cp56time2a)
     }
 }
 
-
 bool hal_get_time_in_standard(standard_time_t *standard_time)
 {
     if (standard_time == NULL)
@@ -82,7 +81,6 @@ bool hal_get_time_in_standard(standard_time_t *standard_time)
         struct tm time_in_tm;
         localtime_r(&time_in_timeval.tv_sec, &time_in_tm);
 
-        // uint16_t ms_tmp = time_in_tm.tm_sec * 1000 + time_in_timeval.tv_usec / 1000;
         standard_time->ms = time_in_timeval.tv_usec / 1000;
         standard_time->s = time_in_tm.tm_sec;
         standard_time->min = time_in_tm.tm_min;
