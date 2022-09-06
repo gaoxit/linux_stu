@@ -16,6 +16,7 @@ FILE (GLOB ALL_SOURCES
         "./src/file_infc/*.c"
         "./src/utils/*.c"
         "./src/task/*.c"
+        "./src/task_manage/*.c"
         "./src/timer/*.c"
 )
 
@@ -25,6 +26,7 @@ include_directories(
         "./src/file_infc"
         "./src/utils"
         "./src/task"
+        "./src/task_manage"
         "./src/timer"
 )
 

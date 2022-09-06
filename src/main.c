@@ -1,8 +1,9 @@
 #define LIB_STU         0   //装载、链接与库学习代码
 #define MY_PRINTF       0   //移植的printf函数功能验证调试
 #define SNPRINTF        0   //snprintf函数功能验证
-#define DIR_FILE        1   //删除文件夹功能验证
-#define TIMER           1   //timer相关功能单元测试
+#define DIR_FILE        0   //删除文件夹功能验证
+#define TIMER           0   //timer相关功能单元测试
+#define TASK            1   //任务相关功能
 
 #if LIB_STU
 //装载、链接与库学习代码
@@ -61,10 +62,11 @@ gxt@LAPTOP-JM9VJP8V:/mnt/e/1Code/my_code/linux_stu/src$ size main.o
 
 #include <stdio.h>
 #include <stdint.h>
+#include <pthread.h>
 #include "myprintf.h"
 #include "file_infc.h"
 #include "hal_timer.h"
-#include <pthread.h>
+#include "task_manage.h"
 
 int main(void)  
 {
@@ -111,12 +113,31 @@ int main(void)
             now_time.s,
             now_time.ms);
 
-    // hal_sleep_in_s(10);
+    hal_sleep_in_s(5);
+    hal_get_time_in_standard(&now_time);
+    printf("当前时间2是：20%d年%d月%d日 %d:%d:%d,%d\n",
+            now_time.year,
+            now_time.month,
+            now_time.mday,
+            now_time.hour,
+            now_time.min,
+            now_time.s,
+            now_time.ms);
+
 
     #endif
 
+    #if TASK
+    task_init();    //ps -ef | grep my_linux.bin
+    while(1)    //主进程不能退出，所以需要加while循环
+    {
+        static int i = 0;
+        i++;
+        printf("\033[31m main主线程中：i = %d \033[0m\n", i);
 
-    pthread_t thread = 0;
+        hal_sleep_in_s(1);
+    }
+    #endif
 
     return 0;  
 }
