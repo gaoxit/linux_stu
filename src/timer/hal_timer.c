@@ -7,7 +7,7 @@ void hal_sleep_in_ms(uint32_t ms)
 
 void hal_sleep_in_s(uint32_t s)
 {
-    usleep(s);
+    sleep(s);
 }
 
 uint64_t hal_get_system_tick_in_ms(void)
