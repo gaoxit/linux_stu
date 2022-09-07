@@ -19,7 +19,7 @@ int32_t hal_task_create(task_t* task)
     if(ret != 0)
     {
         printf("pthread_attr_setstack(%s) error!\n", task->task_name);
-        return false;
+        return RES_ERR;
     }
 
     //创建线程
@@ -27,7 +27,7 @@ int32_t hal_task_create(task_t* task)
     if(ret != 0)
     {
         printf("pthread_create(%s) error!\n", task->task_name);
-        return false;
+        return RES_ERR;
     }
 
     //删除线程属性  todo不知道为什么放在这里，不应该放到最后吗
@@ -38,7 +38,7 @@ int32_t hal_task_create(task_t* task)
     // if(ret != 0)
     // {
     //     printf("pthread_setname_np(%s) error!\n", task->task_name);
-    //     return false;
+    //     return RES_ERR;
     // }
     // printf("pthread_setname_np(%s) success!\n", task->task_name);
 
@@ -51,15 +51,12 @@ int32_t hal_task_create(task_t* task)
         ret = pthread_setschedparam(thread, SCHED_FIFO, &sched_para);
         if (ret != 0)
         {
-            printf("pthread_setschedparam(%s) error!\n", task->task_name);
+            printf("\033[31mpthread_setschedparam(%s) error!\033[0m\n", task->task_name);
+            return RES_ERR;
         }
     }
 
-
-    // task->task_id = thread;
-    // task->task_status = TASK_CREATED;
-
-    return true;
+    return RES_OK;
 }
 
 
@@ -67,5 +64,5 @@ int32_t hal_task_create(task_t* task)
 // {
 //     task->task_status = TASK_START;
 
-//     return true;
+//     return RES_OK;
 // }
