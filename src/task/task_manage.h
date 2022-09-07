@@ -9,8 +9,8 @@ typedef enum
     APP_TASK_ID_MAX
 } APP_TASK_ID_E;
 
-void task_init(void);
-void task_start(void);
+void task_create(void);
+// void task_start(void);
 
 
 

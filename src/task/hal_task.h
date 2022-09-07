@@ -33,7 +33,7 @@ typedef struct
 } task_t;       //注意在}和自定义名称之间加空格，要不会报错
 
 int32_t hal_task_create(task_t* task);
-int32_t hal_task_start(task_t* task);
+// int32_t hal_task_start(task_t* task);
 
 
 

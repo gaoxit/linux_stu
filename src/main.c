@@ -128,12 +128,12 @@ int main(void)
     #endif
 
     #if TASK
-    task_init();    //ps -ef | grep my_linux.bin
+    task_create();    //ps -ef | grep my_linux.bin
     while(1)    //主进程不能退出，所以需要加while循环
     {
         static int i = 0;
         i++;
-        printf("\033[31m main主线程中：i = %d \033[0m\n", i);
+        printf("\033[31m在main主线程中：i = %d \033[0m\n", i);
 
         hal_sleep_in_s(1);
     }

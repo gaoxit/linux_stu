@@ -79,7 +79,7 @@ task_callback_ret_t task_cycle2(task_callback_para_t arg)
 }
 
 
-void task_init(void)
+void task_create(void)
 {
     uint8_t ret = 0;
     for(uint8_t task_index = 0; task_index < COUNT(g_task_list); task_index++)
@@ -87,20 +87,20 @@ void task_init(void)
         ret = hal_task_create(&g_task_list[task_index]);
         if(ret != 0)
         {
-            //
+            printf("Create %s failure......\n", g_task_list[task_index].task_name);
         }
     }
 }
 
-void task_start(void)
-{
-    uint8_t ret = 0;
-    for(uint8_t task_index = 0; task_index < COUNT(g_task_list); task_index++)
-    {
-        ret = hal_task_start(&g_task_list[task_index]);
-        if(ret != 0)
-        {
-            //
-        }
-    }
-}
+// void task_start(void)
+// {
+//     uint8_t ret = 0;
+//     for(uint8_t task_index = 0; task_index < COUNT(g_task_list); task_index++)
+//     {
+//         ret = hal_task_start(&g_task_list[task_index]);
+//         if(ret != 0)
+//         {
+//             //
+//         }
+//     }
+// }
