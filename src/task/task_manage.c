@@ -24,7 +24,7 @@ static task_t g_task_list[] =
         .task_status = TASK_NOT_CREATE,
         .task_name = "cycle1",
         .task_stack = stack_task_cycle1,
-        .task_priority = 1,
+        .task_priority = 2,
         .task_stack_size = sizeof(stack_task_cycle1),
         .task_callback = task_cycle1,
         .task_callback_para = 0,
@@ -63,7 +63,6 @@ task_callback_ret_t task_cycle1(task_callback_para_t arg)
 
         hal_sleep_in_s(1);
     }
-    return NULL;
 }
 
 
@@ -75,7 +74,6 @@ task_callback_ret_t task_cycle2(task_callback_para_t arg)
         printf("当前在task2任务中....(%d)..\n", num++);
         hal_sleep_in_s(1);
     }
-    return NULL;
 }
 
 

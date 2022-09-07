@@ -58,11 +58,7 @@ gxt@LAPTOP-JM9VJP8V:/mnt/e/1Code/my_code/linux_stu/src$ size main.o
 */
 #endif
 
-
-
-#include <stdio.h>
-#include <stdint.h>
-#include <pthread.h>
+#include "platform.h"
 #include "myprintf.h"
 #include "file_infc.h"
 #include "hal_timer.h"
@@ -94,7 +90,6 @@ int main(void)
     #endif
 
     #if TIMER
-
     uint64_t now_ms_tick = hal_get_system_tick_in_ms();
     printf("now_ms_tick = %lu\n",now_ms_tick);
     uint64_t now_ms_time = hal_get_time_in_ms();
@@ -123,8 +118,6 @@ int main(void)
             now_time.min,
             now_time.s,
             now_time.ms);
-
-
     #endif
 
     #if TASK
@@ -133,7 +126,7 @@ int main(void)
     {
         static int i = 0;
         i++;
-        printf("\033[31m在main主线程中：i = %d \033[0m\n", i);
+        printf("\033[34m在main主线程中：i = %d \033[0m\n", i);
 
         hal_sleep_in_s(1);
     }
