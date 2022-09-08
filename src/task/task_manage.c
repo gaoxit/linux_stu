@@ -2,6 +2,8 @@
 #include "hal_task.h"
 #include "hal_timer.h"
 #include "utils_export.h"
+#include "log_export.h"
+
 
 
 #define STACK_SIZE_1K 1024
@@ -11,6 +13,8 @@
 
 static uint8_t stack_task_cycle1[STACK_SIZE_2M];
 static uint8_t stack_task_cycle2[STACK_SIZE_2M];
+static uint8_t stack_task_tlog[STACK_SIZE_2M];
+
 
 
 task_callback_ret_t task_cycle1(task_callback_para_t arg);
@@ -38,6 +42,17 @@ static task_t g_task_list[] =
         .task_priority = 1,
         .task_stack_size = sizeof(stack_task_cycle2),
         .task_callback = task_cycle2,
+        .task_callback_para = 0,
+        .task_init = NULL,
+    },
+    {
+        .task_id = APP_TASK_TLOG,
+        .task_status = TASK_NOT_CREATE,
+        .task_name = "tlog_thread",
+        .task_stack = stack_task_tlog,
+        .task_priority = 1,
+        .task_stack_size = sizeof(stack_task_tlog),
+        .task_callback = tlog_thread,
         .task_callback_para = 0,
         .task_init = NULL,
     },
