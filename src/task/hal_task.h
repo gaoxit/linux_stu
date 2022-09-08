@@ -2,13 +2,7 @@
 #define __HAL_TASK__
 
 #include <pthread.h>
-#include "platform.h"
-
-typedef uint32_t task_id_t;
-typedef void* task_callback_ret_t;
-typedef void* task_callback_para_t;
-typedef task_callback_ret_t (*task_callback_t)(task_callback_para_t);
-typedef int32_t (*task_init_t)();
+#include "task_export.h"
 
 #define MAX_TASK_NAME_LEN 16    // 最大的任务名长度
 
