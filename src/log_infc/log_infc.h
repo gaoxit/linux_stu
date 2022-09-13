@@ -3,8 +3,8 @@
 #ifndef __LOG_INFC__
 #define __LOG_INFC__
 
+#include <fcntl.h>
 #include "log_export.h"
-
 
 
 #define MAX_TAG_LEN             32
@@ -12,8 +12,38 @@
 #define LOG_QUEUE_MAX_LEN       1024
 
 #define LOG_MSG_MAX_LEN         256
-#define RECORD_DATA_MAX_LEN         250
+#define RECORD_DATA_MAX_LEN     250
+// #define RECORD_MAX_LEN          2048
+#define MAX_FILE_PATH_LEN       128
 
+#define TLOG_FILE_OPEN_FLAGS    (O_WRONLY | O_APPEND | O_CREAT)
+
+#define LOG_RECORD_FLAG             0x22222222
+#define LOG_TIME_INFO_LEN               32
+#define LOG_LINE_INFO_LEN               10
+
+/*0xF9 + 数据域长度(2 bytes) + 控制码(1 bytes) + 数据域 + 0x6E*/
+#define LOG_MSG_MAX_LEN             256
+#define RECORD_MAX_LEN              (sizeof(log_record_t))
+
+
+#define MSG_HEAD_FLAG (0xF9)
+#define MSG_TAIL_FLAG (0x6E)
+#define TLOG_MAX_LOG_LEVEL          6
+
+#define TLOG_TAG_PARA               "PARA"
+
+#define LOG_MSG_DATA_LEN_POS            1
+#define LOG_MSG_DATA_START_POS          4
+#define LOG_MSG_RECORD_LEN_POS          12
+#define LOG_MSG_RECORD_START_POS        14
+
+
+// const char  level_output_info[TLOG_MAX_LOG_LEVEL][6] =
+// {
+//     {"DEBUG"}, {"INFO"}, {"WARN"},
+//     {"ERROR"}, {"FATAL"}, {"OFF"}
+// };
 
 
 typedef struct 
@@ -43,7 +73,7 @@ typedef struct
     int32_t fd;
     uint32_t    len;
     uint16_t    size;
-    uint16_t    conut;
+    uint16_t    count;
     int8_t*     level;
     char        file_name[MAX_TAG_LEN];
 } log_file_t;
@@ -89,8 +119,6 @@ typedef struct
 } log_mgr_t;
 
 
-
-
 typedef struct record_header_s
 {
     uint32_t        type;
@@ -123,5 +151,10 @@ typedef enum
     LOG_DATA_MSG,
     LOG_FRM_MSG,
 } app_msg_t;
+
+
+
+
+
 
 #endif  //__LOG_INFC__

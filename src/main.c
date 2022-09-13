@@ -3,7 +3,7 @@
 #define SNPRINTF        0   //snprintf函数功能验证
 #define DIR_FILE        0   //删除文件夹功能验证
 #define TIMER           0   //timer相关功能单元测试
-#define TASK            1   //任务相关功能
+#define TASK            0   //任务相关功能
 
 #if LIB_STU
 //装载、链接与库学习代码
@@ -63,6 +63,9 @@ gxt@LAPTOP-JM9VJP8V:/mnt/e/1Code/my_code/linux_stu/src$ size main.o
 #include "file_infc.h"
 #include "hal_timer.h"
 #include "task_manage.h"
+#include "log_export.h"
+#include "log_infc.h"
+
 
 int main(void)  
 {
@@ -132,5 +135,13 @@ int main(void)
     }
     #endif
 
-    return 0;  
+    char file_path[128] = {"/mnt"};
+    int file_len = lcp_get_file_size(file_path);
+
+    printf("file_len = %d;\n", (int)(strlen(file_path)));
+
+    plm_tlog_error("RUN_TIME", "save param %d error", file_len);
+    
+
+    return RES_OK;  
 }
