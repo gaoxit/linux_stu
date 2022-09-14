@@ -192,7 +192,7 @@ void tlog_handle_log_msg(char* data, uint32_t(len))
 
     record_header->pid = data[i++];
 
-    memcpy(&(record_header->len), &data[i], sizeof(record_header->pid));
+    memcpy(&(record_header->len), &data[i], sizeof(record_header->len));    //record长度(把最后回车相关3位的计算在内)
     i += sizeof(record_header->len);
 #endif
     memcpy(msg.record.data, &data[i], (len - i));
