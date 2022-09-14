@@ -371,6 +371,51 @@ ssize_t plm_tlog_writen(int fd, const void *vptr, size_t n)
     return (n);
 }
 
+/*日志报文文件更替，将已达到存储上限的文件重命名存放*/
+static int32_t rotate(const TEXT *name, int32_t max_files)
+{
+    int32_t i, len;
+    TEXT to_path[MAX_FILE_PATH_LEN];
+    TEXT from_path[MAX_FILE_PATH_LEN];
+    if (max_files < 2)
+    {
+        CHECK(remove, name);
+        return RES_OK;
+    }
+
+    for (i = max_files - 1; i > 1; i--)
+    {
+        len = snprintf(to_path, MAX_FILE_PATH_LEN, "%s.%d", name, i);
+        if (len >= MAX_FILE_PATH_LEN)
+        {
+            return RES_OK;
+        }
+        len = snprintf(from_path, MAX_FILE_PATH_LEN, "%s.%d", name, i - 1);
+        if (len >= MAX_FILE_PATH_LEN)
+        {
+            return RES_ERR;
+        }
+        if (rename(from_path, to_path) == -1 && errno != ENOENT)    //将.i-1命名为.i
+        {
+            perror("rename file error\n");
+            return RES_ERR;
+        }
+    }
+
+    len = snprintf(to_path, MAX_FILE_PATH_LEN, "%s.1", name);
+    if (len >= MAX_FILE_PATH_LEN)
+    {
+        return RES_ERR;
+    }
+
+    if (rename(name, to_path) == -1 && errno != ENOENT)
+    {
+        perror("rename file error\n");
+        return RES_ERR;
+    }
+    return RES_OK;
+}
+
 void tlog_init(void)
 {
     // printf("tlog_init1\n");
