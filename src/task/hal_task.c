@@ -42,6 +42,7 @@ int32_t hal_task_create(task_t* task)
     // }
     // printf("pthread_setname_np(%s) success!\n", task->task_name);
 
+#if 0
     //写入优先级
     if (task->task_priority > 0)
     {
@@ -55,6 +56,7 @@ int32_t hal_task_create(task_t* task)
             return RES_ERR;
         }
     }
+#endif
 
     return RES_OK;
 }

@@ -3,7 +3,7 @@
 #define SNPRINTF        0   //snprintf函数功能验证
 #define DIR_FILE        0   //删除文件夹功能验证
 #define TIMER           0   //timer相关功能单元测试
-#define TASK            0   //任务相关功能
+#define TASK            1   //任务相关功能
 
 #if LIB_STU
 //装载、链接与库学习代码
@@ -123,6 +123,8 @@ int main(void)
             now_time.ms);
     #endif
 
+    tlog_init();
+
     #if TASK
     task_create();    //ps -ef | grep my_linux.bin
     while(1)    //主进程不能退出，所以需要加while循环
@@ -135,14 +137,12 @@ int main(void)
     }
     #endif
 
-    char file_path[128] = {"/mnt"};
-    int file_len = lcp_get_file_size(file_path);
-    tlog_init();
-
+    // char file_path[128] = {"/mnt"};
+    // int file_len = lcp_get_file_size(file_path);
     // printf("file_len = %d;\n", (int)(strlen(file_path)));
 
 
-    plm_tlog_error("RUN_TIME", "heart beats: %s", __TIME__);  
+    // plm_tlog_error("RUN_TIME", "heart beats: %s", __TIME__);  
     
 
     return RES_OK;  

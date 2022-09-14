@@ -66,7 +66,9 @@ task_callback_ret_t task_cycle1(task_callback_para_t arg)
     
     while(1)
     {
+
         hal_get_time_in_standard(&now_time);
+#if 0
         printf("当前在task1任务中--当前时间是：20%d年%d月%d日 %d:%d:%d,%d\n",
         now_time.year,
         now_time.month,
@@ -75,6 +77,15 @@ task_callback_ret_t task_cycle1(task_callback_para_t arg)
         now_time.min,
         now_time.s,
         now_time.ms);
+#endif
+        plm_tlog_error("RUN_TIME", "heart beats: 20%d年%d月%d日 %d:%d:%d,%d", 
+        now_time.year,
+        now_time.month,
+        now_time.mday,
+        now_time.hour,
+        now_time.min,
+        now_time.s,
+        now_time.ms);  
 
         hal_sleep_in_s(1);
     }
