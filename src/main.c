@@ -137,10 +137,12 @@ int main(void)
 
     char file_path[128] = {"/mnt"};
     int file_len = lcp_get_file_size(file_path);
+    tlog_init();
 
-    printf("file_len = %d;\n", (int)(strlen(file_path)));
+    // printf("file_len = %d;\n", (int)(strlen(file_path)));
 
-    plm_tlog_error("RUN_TIME", "save param %d error", file_len);
+
+    plm_tlog_error("RUN_TIME", "heart beats: %s\n", __TIME__);  
     
 
     return RES_OK;  

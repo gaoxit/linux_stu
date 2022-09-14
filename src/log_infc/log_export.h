@@ -35,4 +35,8 @@ int32_t plm_tlog(const char* tag, uint32_t level, const char* func, uint64_t lin
 #define plm_tlog_error(tag, ...) \
     plm_tlog(tag, TLOG_LEVEL_ERROR, __func__, __LINE__, __VA_ARGS__)
 
+void tlog_init(void);
+
+
+
 #endif //__LOG_EXPORT__

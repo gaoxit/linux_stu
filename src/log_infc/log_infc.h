@@ -38,6 +38,10 @@
 #define LOG_MSG_RECORD_LEN_POS          12
 #define LOG_MSG_RECORD_START_POS        14
 
+#define TLOG_DEFAULT_SYNC_PERIOD        1
+#define TLOG_DEFAULT_CACHE_SIZE         1024
+
+
 
 // const char  level_output_info[TLOG_MAX_LOG_LEVEL][6] =
 // {

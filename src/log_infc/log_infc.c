@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include "log_infc.h"
 #include "errno.h"
@@ -56,7 +57,7 @@ int32_t plm_tlog(const char *tag, uint32_t level, const char *func,
     uint16_t          data_len;
     int8_t            pid = 0;
     va_list           args;
-    int32_t          fmt_result;
+    int32_t           fmt_result;
     
     uint32_t        log_flag = LOG_RECORD_FLAG;
     char            log_buf[LOG_MSG_MAX_LEN] = {'\0'};
@@ -65,45 +66,54 @@ int32_t plm_tlog(const char *tag, uint32_t level, const char *func,
 
     memset(log_buf, 0, LOG_MSG_MAX_LEN);
 
-    log_buf[log_len++]  = MSG_HEAD_FLAG;
-    log_len += 2;
+    // log_buf[log_len++]  = MSG_HEAD_FLAG;
+    // log_len += 2;
+    // log_buf[log_len++]  = 1;
+    // log_buf[log_len++]  = LOG_DATA_MSG;
+    // log_buf[log_len++]  = pid;
+    // log_buf[log_len++]  = level;
+    // memcpy(log_buf+log_len, &log_flag, 4);
+    // log_len += 4;
+    // log_buf[log_len++]  = pid;
+    // log_len += 2;       //log_len = 14
 
-    log_buf[log_len++]  = 1;
-    log_buf[log_len++]  = LOG_DATA_MSG;
-    log_buf[log_len++]  = pid;
-    log_buf[log_len++]  = level;
-    memcpy(log_buf+log_len, &log_flag, 4);
-    log_len += 4;
-    log_buf[log_len++]  = pid;
-    log_len += 2;
-
+    // printf("tag = %s\n",tag);
     if (tag != NULL)
     {
-        log_len += tlog_strcpy(log_len, log_buf + log_len, tag);
+        log_len += tlog_strcpy(log_len, log_buf + log_len, tag);    //log_len = 22
     }
     else
     {
         return RES_OK;
     }
-    printf("log_len_line_90 = %d\n",log_len);
 
-    log_len += tlog_strcpy(log_len, log_buf + log_len, "#");
+    log_len += tlog_strcpy(log_len, log_buf + log_len, "#");    //log_len = 23
 
     if (0 != strncmp(tag, TLOG_TAG_PARA, strlen(TLOG_TAG_PARA)))
     {
         // log_len += tlog_strcpy(log_len, log_buf + log_len, level_output_info[level]);
-        log_len += tlog_strcpy(log_len, log_buf + log_len, "debug");
-        log_len += tlog_strcpy(log_len, log_buf + log_len, " [");
+        log_len += tlog_strcpy(log_len, log_buf + log_len, "info");  //log_len = 28  
+        log_len += tlog_strcpy(log_len, log_buf + log_len, "[");
+
         // tlog_get_time(time_buf, sizeof(time_buf));
         // log_len += tlog_strcpy(log_len, log_buf + log_len, time_buf);
-        log_len += tlog_strcpy(log_len, log_buf + log_len, " ");
+        // log_len += tlog_strcpy(log_len, log_buf + log_len, " ");
+
         log_len += tlog_strcpy(log_len, log_buf + log_len, func);
-        log_len += tlog_strcpy(log_len, log_buf + log_len, ":");
+        log_len += tlog_strcpy(log_len, log_buf + log_len, ": ");
         tlog_get_line_info(line, cur_line_info);
         log_len += tlog_strcpy(log_len, log_buf + log_len, cur_line_info);
-
         log_len += tlog_strcpy(log_len, log_buf + log_len, "] ");
     }
+    printf("log_buf1 = %s\n",log_buf);
+
+    // printf("log_buf: ");
+    // for(int i = 0; i< log_len;i++)
+    // {
+    //     printf("%c",log_buf[i]);
+    // }
+    // printf("\n");
+
 
     /**
      * @brief vsnprintf
@@ -116,12 +126,15 @@ int32_t plm_tlog(const char *tag, uint32_t level, const char *func,
      * and the real copy len is the less value between size-1 and strlen(src_str)
      * int vsnprintf(char *str, size_t size, const char *format, va_list ap);
      */
+    //将之后打印的可变参数添加到log_buf
     va_start(args, format);
 
     fmt_result = vsnprintf(log_buf + log_len,
                            LOG_MSG_MAX_LEN - log_len,
                            format, args);
     va_end(args);
+
+    printf("log_buf2 = %s\n",log_buf);
 
     if ((fmt_result > -1) &&
         (fmt_result <= (int)(LOG_MSG_MAX_LEN - log_len - 4)))
@@ -132,24 +145,26 @@ int32_t plm_tlog(const char *tag, uint32_t level, const char *func,
     {
         log_len = LOG_MSG_MAX_LEN - 4;
     }
+#if TAIL
     /* fill in the msg data length */
     data_len    = log_len - LOG_MSG_DATA_START_POS + 3; //为最后回车预留1
-    memcpy(log_buf+LOG_MSG_DATA_LEN_POS, &data_len, sizeof(data_len));
+    memcpy(log_buf + LOG_MSG_DATA_LEN_POS, &data_len, sizeof(data_len));
 
     /* fill in the record length */
     record_len  = log_len - LOG_MSG_RECORD_START_POS + 3;//为最后回车预留1
 
-    memcpy(log_buf+LOG_MSG_RECORD_LEN_POS, &record_len, sizeof(record_len));
-
+    memcpy(log_buf + LOG_MSG_RECORD_LEN_POS, &record_len, sizeof(record_len));
+#endif
 
 
     /* fill in the msg tailer */
-    log_buf[log_len++]    = '\r';
+    // log_buf[log_len++]    = '\r';
     log_buf[log_len++]    = '\n';
     log_buf[log_len++]    = '\0';
-    log_buf[log_len++]    = MSG_TAIL_FLAG;
+    // log_buf[log_len++]    = MSG_TAIL_FLAG;
 
-    tlog_handle_log_msg(&log_buf[LOG_MSG_DATA_START_POS], log_len-5);
+    // tlog_handle_log_msg(&log_buf[LOG_MSG_DATA_START_POS], log_len-5);
+    tlog_handle_log_msg(&log_buf[0], log_len);         //先不减5
 
     /*do not FREE resources if enqueue succeeds*/
     return RES_OK;
@@ -163,11 +178,15 @@ void tlog_handle_log_msg(char* data, uint32_t(len))
     memset(&msg, 0, sizeof(log_msg_t));
     record_header_t *record_header;
 
+    printf("data = %s\n",data);
+
+#if 1   //去除头部识别，todo不去除#号传入的数据buff识别不出来
     msg.header.type     = data[i++];
     msg.header.pid      = data[i++];
     msg.header.level    = data[i++];
 
     record_header = &(msg.record.header);
+
     memcpy(&(record_header->type), &data[i], sizeof(record_header->type));
     i += sizeof(record_header->type);
 
@@ -175,8 +194,10 @@ void tlog_handle_log_msg(char* data, uint32_t(len))
 
     memcpy(&(record_header->len), &data[i], sizeof(record_header->pid));
     i += sizeof(record_header->len);
-
+#endif
     memcpy(msg.record.data, &data[i], (len - i));
+
+    printf("msg.record.data = %s\n",msg.record.data);
 
     // if(msg.header.type == LOG_DATA_MSG)
     {
@@ -189,13 +210,18 @@ static void tlog_handle_real_log(log_msg_t *msg)
 {
     log_record_t        *record = &(msg->record);
     log_msg_header_t    *header = &(msg->header);
+
+#if 0   //暂不进行#号的识别，原代码中为了将报文按配置导引到NAND/UART/USB/NET
     char *substr;
+    printf("record->data = %s\n",record->data);
+
     substr = strchr(record->data, '#');     //查找record->data中#第一次出现的位置，并返回其指针；失败则返回NULL
     if (substr == NULL)
     {
         printf("substr == NULL\n");
         return;
     }
+#endif
 
     record_enqueue(header->level, record, false);   //在此只需要header的level值和record数据
 }
@@ -217,9 +243,9 @@ static void record_enqueue(int8_t type, log_record_t *record, bool force_sync)
 {
     uint8_t buf[RECORD_MAX_LEN];
     uint16_t len = tlog_fill_record_buf(record, buf);   //将record的data数据拷贝到buf里
-    uint8_t* formt_log = buf;
+    printf("len = %d\n",len);
+    printf("buf: %s\n", buf);
 
-    printf("cur_in_record_enqueue_func\n");
     // if(type == LOG_DATA_MSG)
     {
         log_buf_t *cache = log_mgr.log_cache;
@@ -232,17 +258,16 @@ static void record_enqueue(int8_t type, log_record_t *record, bool force_sync)
         /* 报文长度大于cache size不存储 */
         if(len > (cache->size * 1024))
         {
-            printf("return 1\n");
             fprintf(stderr, "record len > cache size, len=%u, cache->size =%u\n", len,cache->size * 1024);
             return;
         }
 
-        memcpy(cache->buf+cache->tail, buf, len);
+        memcpy(cache->buf + cache->tail, buf, len);
+
         cache->tail += len;
 
-        if (force_sync == true)
+        // if (force_sync == true)
         {
-            return;
             tlog_dequeue();
         }
     }
@@ -260,18 +285,22 @@ ssize_t plm_tlog_writen(int fd, const void *vptr, size_t n);
 
 static void tlog_dequeue()
 {
-    TEXT file_path[MAX_FILE_PATH_LEN];
     log_buf_t *cache = log_mgr.log_cache;
+
+    TEXT file_path[MAX_FILE_PATH_LEN];
+    sprintf(file_path, "%s/terminal.log", "/mnt/e/1Code/my_code/linux_stu");
+    // printf("\033[32mfile_path = %s\033[0m\n",file_path);
+
+    log_mgr.dev->log_file.fd = open(file_path, TLOG_FILE_OPEN_FLAGS, 0666);
+
     log_file_t *logfile = &(log_mgr.dev->log_file);
     int32_t ret;
-#if CACHE_SYNC_DEBUG
-    clock_t t;
-    double time_taken;
-#endif
-
-    sprintf(file_path, "%s/terminal.log", "/mnt/e/1Code/my_code/linux_stu");
 
     int32_t detectFileLen = lcp_get_file_size(file_path);
+
+    printf("detectFileLen1 = %d\n",detectFileLen);
+    // printf("logfile->len = %d\n",logfile->len);
+
 
     if(detectFileLen != -1 && logfile->len != (uint32_t)detectFileLen)
     {
@@ -281,7 +310,7 @@ static void tlog_dequeue()
     if(detectFileLen == -1)
     {
         close(logfile->fd);
-        logfile->fd = open(file_path,  TLOG_FILE_OPEN_FLAGS, 0666);
+        logfile->fd = open(file_path, TLOG_FILE_OPEN_FLAGS, 0666);
         if(-1 == logfile->fd)
         {
             fprintf(stderr, "Open  %s failed. errno[%d]\n", file_path, errno);
@@ -289,6 +318,8 @@ static void tlog_dequeue()
         }
         logfile->len = 0;
     }
+    // printf("%s %s\n", __FILE__, __DATE__);
+    printf("%s %d\n", __TIME__, __LINE__);
 
     if (logfile->len + cache->tail > (uint32_t)(logfile->size * 1024))
     {
@@ -304,12 +335,16 @@ static void tlog_dequeue()
     }
 
     ret = plm_tlog_writen(logfile->fd, cache->buf, cache->tail);
+    printf("%s %d\n", __TIME__, __LINE__);
+
     if (ret >= 0)
     {
+        // printf("%d\n", __LINE__);
         logfile->len += cache->tail;
         cache->tail = 0;
         cache->flush_time = time(NULL);
         fsync(logfile->fd);
+        printf("%s %d\n", __TIME__, __LINE__);
     }
 }
 
@@ -339,4 +374,38 @@ ssize_t plm_tlog_writen(int fd, const void *vptr, size_t n)
         ptr   += nwritten;
     }
     return (n);
+}
+
+void tlog_init(void)
+{
+    // printf("tlog_init1\n");
+    log_mgr.dev = calloc(1, sizeof(log_dev_t));
+    log_mgr.dev->log_file.level = calloc(1, sizeof(int8_t));
+    // printf("tlog_init13\n");
+
+    log_mgr.dev->log_file.count = 5;
+    log_mgr.dev->log_file.size = 4*1024;
+    // printf("tlog_init2\n");
+
+    TEXT file_path[MAX_FILE_PATH_LEN];
+    sprintf(file_path, "%s/terminal.log", "/mnt/e/1Code/my_code/linux_stu");
+    // printf("tlog_init3\n");
+
+    int32_t fd00 = open(file_path,  TLOG_FILE_OPEN_FLAGS, 0666);
+    // printf("tlog_init4\n");
+
+    log_mgr.dev->log_file.fd = open(file_path,  TLOG_FILE_OPEN_FLAGS, 0666);
+    // printf("tlog_init5\n");
+
+    log_buf_t       *log_cache = NULL;
+    log_mgr.log_cache = calloc(1, sizeof(log_buf_t));
+
+    log_cache = log_mgr.log_cache;
+    log_cache->flush_period = TLOG_DEFAULT_SYNC_PERIOD;
+    log_cache->flush_time = time(NULL);
+    log_cache->size = TLOG_DEFAULT_CACHE_SIZE;
+
+    log_cache->buf = calloc(1, log_cache->size * 1024);
+
+
 }
