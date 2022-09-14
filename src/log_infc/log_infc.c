@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include "log_infc.h"
 #include "errno.h"
+#include "utils_export.h"
 
 
 static void tlog_handle_real_log(log_msg_t *msg);
@@ -66,16 +67,16 @@ int32_t plm_tlog(const char *tag, uint32_t level, const char *func,
 
     memset(log_buf, 0, LOG_MSG_MAX_LEN);
 
-    // log_buf[log_len++]  = MSG_HEAD_FLAG;
-    // log_len += 2;
-    // log_buf[log_len++]  = 1;
-    // log_buf[log_len++]  = LOG_DATA_MSG;
-    // log_buf[log_len++]  = pid;
-    // log_buf[log_len++]  = level;
-    // memcpy(log_buf+log_len, &log_flag, 4);
-    // log_len += 4;
-    // log_buf[log_len++]  = pid;
-    // log_len += 2;       //log_len = 14
+    log_buf[log_len++]  = MSG_HEAD_FLAG;        //0-1:数据帧头
+    log_len += 2;                               //2-3:数据域长度int16
+    log_buf[log_len++]  = 1;                    //4:控制码
+    log_buf[log_len++]  = LOG_DATA_MSG;         //5
+    log_buf[log_len++]  = pid;                  //6
+    log_buf[log_len++]  = level;                //7
+    memcpy(log_buf+log_len, &log_flag, 4);
+    log_len += 4;                               //8-11
+    log_buf[log_len++]  = pid;                  //12
+    log_len += 2;                               //13-14：实际数据长度record_len
 
     // printf("tag = %s\n",tag);
     if (tag != NULL)
@@ -100,12 +101,11 @@ int32_t plm_tlog(const char *tag, uint32_t level, const char *func,
         // log_len += tlog_strcpy(log_len, log_buf + log_len, " ");
 
         log_len += tlog_strcpy(log_len, log_buf + log_len, func);
-        log_len += tlog_strcpy(log_len, log_buf + log_len, ": ");
+        log_len += tlog_strcpy(log_len, log_buf + log_len, ":");
         tlog_get_line_info(line, cur_line_info);
         log_len += tlog_strcpy(log_len, log_buf + log_len, cur_line_info);
         log_len += tlog_strcpy(log_len, log_buf + log_len, "] ");
     }
-    printf("log_buf1 = %s\n",log_buf);
 
     // printf("log_buf: ");
     // for(int i = 0; i< log_len;i++)
@@ -134,8 +134,6 @@ int32_t plm_tlog(const char *tag, uint32_t level, const char *func,
                            format, args);
     va_end(args);
 
-    printf("log_buf2 = %s\n",log_buf);
-
     if ((fmt_result > -1) &&
         (fmt_result <= (int)(LOG_MSG_MAX_LEN - log_len - 4)))
     {
@@ -145,26 +143,23 @@ int32_t plm_tlog(const char *tag, uint32_t level, const char *func,
     {
         log_len = LOG_MSG_MAX_LEN - 4;
     }
-#if TAIL
+
     /* fill in the msg data length */
     data_len    = log_len - LOG_MSG_DATA_START_POS + 3; //为最后回车预留1
-    memcpy(log_buf + LOG_MSG_DATA_LEN_POS, &data_len, sizeof(data_len));
+    memcpy(log_buf + LOG_MSG_DATA_LEN_POS, &data_len, sizeof(data_len));        //buf的第2位写数据域长度(计算最后的三个回车相关字符)
 
     /* fill in the record length */
     record_len  = log_len - LOG_MSG_RECORD_START_POS + 3;//为最后回车预留1
 
-    memcpy(log_buf + LOG_MSG_RECORD_LEN_POS, &record_len, sizeof(record_len));
-#endif
-
+    memcpy(log_buf + LOG_MSG_RECORD_LEN_POS, &record_len, sizeof(record_len));  //buf的第13位写record长度(计算最后的三个回车相关字符)
 
     /* fill in the msg tailer */
-    // log_buf[log_len++]    = '\r';
+    log_buf[log_len++]    = '\r';
     log_buf[log_len++]    = '\n';
     log_buf[log_len++]    = '\0';
-    // log_buf[log_len++]    = MSG_TAIL_FLAG;
+    log_buf[log_len++]    = MSG_TAIL_FLAG;
 
-    // tlog_handle_log_msg(&log_buf[LOG_MSG_DATA_START_POS], log_len-5);
-    tlog_handle_log_msg(&log_buf[0], log_len);         //先不减5
+    tlog_handle_log_msg(&log_buf[LOG_MSG_DATA_START_POS], log_len - 5);   //传入的buf参数是从数据域开始(跳过4个字节的头部)
 
     /*do not FREE resources if enqueue succeeds*/
     return RES_OK;
@@ -178,28 +173,28 @@ void tlog_handle_log_msg(char* data, uint32_t(len))
     memset(&msg, 0, sizeof(log_msg_t));
     record_header_t *record_header;
 
-    printf("data = %s\n",data);
-
-#if 1   //去除头部识别，todo不去除#号传入的数据buff识别不出来
-    msg.header.type     = data[i++];
-    msg.header.pid      = data[i++];
-    msg.header.level    = data[i++];
+    //去除头部识别，todo不去除#号传入的数据buff识别不出来，
+    //0914放开该部分，该部分将数据buf中的各部分赋值给对应的结构体变量，从数据域开始(去除头部的4字节)
+    msg.header.type     = data[i++];        //LOG_DATA_MSG
+    msg.header.pid      = data[i++];        //默认值0
+    msg.header.level    = data[i++];        //TLOG_LEVEL_ERROR = 3
+    // printf("msg.header.level = %d\n",msg.header.level);
 
     record_header = &(msg.record.header);
+    memcpy(&(record_header->type), &data[i], sizeof(record_header->type));  //0x22222222
+    // printf("record_header->type = %x\n",record_header->type);
 
-    memcpy(&(record_header->type), &data[i], sizeof(record_header->type));
     i += sizeof(record_header->type);
 
-    record_header->pid = data[i++];
+    record_header->pid = data[i++];         //默认值0
 
     memcpy(&(record_header->len), &data[i], sizeof(record_header->len));    //record长度(把最后回车相关3位的计算在内)
     i += sizeof(record_header->len);
-#endif
-    memcpy(msg.record.data, &data[i], (len - i));
 
-    printf("msg.record.data = %s\n",msg.record.data);
+    memcpy(msg.record.data, &data[i], (len - i));   //这里才是真正输出的数据
+    // printf("msg.record.data = %s\n",msg.record.data);
 
-    // if(msg.header.type == LOG_DATA_MSG)
+    if(msg.header.type == LOG_DATA_MSG)
     {
         tlog_handle_real_log(&msg);
     }
@@ -223,9 +218,10 @@ static void tlog_handle_real_log(log_msg_t *msg)
     }
 #endif
 
-    record_enqueue(header->level, record, false);   //在此只需要header的level值和record数据
+    record_enqueue(header->type, record, false);   //在此只需要header的level值和record数据
 }
 
+//函数作用：将record真正打印的数据传入buf
 static uint16_t tlog_fill_record_buf(log_record_t *record, uint8_t *buf)
 {
     uint16_t len = 0;
@@ -246,7 +242,7 @@ static void record_enqueue(int8_t type, log_record_t *record, bool force_sync)
     printf("len = %d\n",len);
     printf("buf: %s\n", buf);
 
-    // if(type == LOG_DATA_MSG)
+    if(type == LOG_DATA_MSG)
     {
         log_buf_t *cache = log_mgr.log_cache;
 
@@ -262,11 +258,13 @@ static void record_enqueue(int8_t type, log_record_t *record, bool force_sync)
             return;
         }
 
-        memcpy(cache->buf + cache->tail, buf, len);
+        memcpy(cache->buf + cache->tail, buf, len);     //todo0914：这个cache是做什么用的？UTOS里直接打印到串口或者存文件，没有用到这个cache
+        printf("cache->buf = %s\n",cache->buf);
 
         cache->tail += len;
+        printf("cache->tail = %d\n",cache->tail);       //0914,cache->tail = len
 
-        // if (force_sync == true)
+        // if (force_sync == true)      //看原代码是掉电同步相关
         {
             tlog_dequeue();
         }
@@ -282,6 +280,7 @@ static void record_enqueue(int8_t type, log_record_t *record, bool force_sync)
  */
 
 ssize_t plm_tlog_writen(int fd, const void *vptr, size_t n);
+static int32_t rotate(const TEXT *name, int32_t max_files);
 
 static void tlog_dequeue()
 {
@@ -289,7 +288,7 @@ static void tlog_dequeue()
 
     TEXT file_path[MAX_FILE_PATH_LEN];
     sprintf(file_path, "%s/terminal.log", "/mnt/e/1Code/my_code/linux_stu");
-    // printf("\033[32mfile_path = %s\033[0m\n",file_path);
+    printf("\033[32mfile_path = %s\033[0m\n",file_path);
 
     log_mgr.dev->log_file.fd = open(file_path, TLOG_FILE_OPEN_FLAGS, 0666);
 
@@ -297,19 +296,17 @@ static void tlog_dequeue()
     int32_t ret;
 
     int32_t detectFileLen = lcp_get_file_size(file_path);
-
-    printf("detectFileLen1 = %d\n",detectFileLen);
-    // printf("logfile->len = %d\n",logfile->len);
-
+    printf("detectFileLen = %d\n",detectFileLen);
 
     if(detectFileLen != -1 && logfile->len != (uint32_t)detectFileLen)
     {
+        printf("\033[31mlogfile->len = detectFileLen\033[0m\n");
         logfile->len = detectFileLen;
     }
 
-    if(detectFileLen == -1)
+    if(detectFileLen == -1)         //打开文件失败
     {
-        close(logfile->fd);
+        close(logfile->fd);         //先关闭，再重新打开
         logfile->fd = open(file_path, TLOG_FILE_OPEN_FLAGS, 0666);
         if(-1 == logfile->fd)
         {
@@ -318,13 +315,12 @@ static void tlog_dequeue()
         }
         logfile->len = 0;
     }
-    // printf("%s %s\n", __FILE__, __DATE__);
-    printf("%s %d\n", __TIME__, __LINE__);
-
-    if (logfile->len + cache->tail > (uint32_t)(logfile->size * 1024))
+    // printf("%s %d\n", __TIME__, __LINE__);
+    printf("logfile->size = %d\n",logfile->size);
+    if (logfile->len + cache->tail > (uint32_t)(logfile->size * 1024))  //如果当前文件长度加上需要写入的大于文件的最大限制长度，则循环存储
     {
         close(logfile->fd);
-        // rotate(file_path, logfile->count);   //文件循环存储，先注释掉0913
+        rotate(file_path, logfile->count);   //文件循环存储，先注释掉0913
         logfile->fd = open(file_path,  TLOG_FILE_OPEN_FLAGS, 0666);
         if(-1 == logfile->fd)
         {
@@ -335,7 +331,6 @@ static void tlog_dequeue()
     }
 
     ret = plm_tlog_writen(logfile->fd, cache->buf, cache->tail);
-    printf("%s %d\n", __TIME__, __LINE__);
 
     if (ret >= 0)
     {
@@ -344,7 +339,7 @@ static void tlog_dequeue()
         cache->tail = 0;
         cache->flush_time = time(NULL);
         fsync(logfile->fd);
-        printf("%s %d\n", __TIME__, __LINE__);
+        printf("\033[32m%s line: %d Code_sucess_end!\n\033[0m", __TIME__, __LINE__);
     }
 }
 
@@ -358,7 +353,7 @@ ssize_t plm_tlog_writen(int fd, const void *vptr, size_t n)
     nleft = n;
     while (nleft > 0)
     {
-        if ((nwritten = write(fd, ptr, nleft)) <= 0)
+        if ((nwritten = write(fd, ptr, nleft)) <= 0)        //向fd所指向的文件中写入ptr中的nleft个数据
         {
             /*写的过程中遇到了中断，不认为是错误，重写即可*/
             if (nwritten < 0 && errno == EINTR)
@@ -383,8 +378,8 @@ void tlog_init(void)
     log_mgr.dev->log_file.level = calloc(1, sizeof(int8_t));
     // printf("tlog_init13\n");
 
-    log_mgr.dev->log_file.count = 5;
-    log_mgr.dev->log_file.size = 4*1024;
+    log_mgr.dev->log_file.count = 5;        //循环存储的文件个数
+    log_mgr.dev->log_file.size = 4 * 1024;  //文件大小，超出后循环存储
     // printf("tlog_init2\n");
 
     TEXT file_path[MAX_FILE_PATH_LEN];

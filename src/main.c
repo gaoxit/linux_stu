@@ -142,7 +142,7 @@ int main(void)
     // printf("file_len = %d;\n", (int)(strlen(file_path)));
 
 
-    plm_tlog_error("RUN_TIME", "heart beats: %s\n", __TIME__);  
+    plm_tlog_error("RUN_TIME", "heart beats: %s", __TIME__);  
     
 
     return RES_OK;  

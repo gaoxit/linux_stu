@@ -156,7 +156,8 @@ typedef enum
     LOG_FRM_MSG,
 } app_msg_t;
 
-
+/*0xF9 + 数据域长度(2 bytes) + 控制码(1 bytes) + 【数据域】 + 0x6E*/
+//【数据域】：pid(1) + level(1) + log_flag(4) + pid(1) + 2bit + tag + # + 日志级别 + [...
 
 
 
