@@ -19,6 +19,7 @@ FILE (GLOB ALL_SOURCES
         "./src/task/*.c"
         "./src/task_manage/*.c"
         "./src/timer/*.c"
+        "./src/shell/*.c"
 )
 
 include_directories(
@@ -30,6 +31,7 @@ include_directories(
         "./src/task"
         "./src/task_manage"
         "./src/timer"
+        "./src/shell"
 )
 
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections")
