@@ -4,6 +4,8 @@
 #define DIR_FILE        0   //删除文件夹功能验证
 #define TIMER           0   //timer相关功能单元测试
 #define TASK            0   //任务相关功能
+#define SHELL           1   //shell脚本相关功能
+
 
 #if LIB_STU
 //装载、链接与库学习代码
@@ -145,7 +147,10 @@ int main(void)
 
 
     // plm_tlog_error("RUN_TIME", "heart beats: %s", __TIME__);  
-    
+    #if SHELL
     shell_printf_input();
+    #endif
+
+
     return RES_OK;  
 }

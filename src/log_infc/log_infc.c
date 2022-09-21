@@ -5,7 +5,7 @@
 #include "errno.h"
 #include "utils_export.h"
 
-#define DEBUG_PRINTF 0
+#define DEBUG_LOG 0
 
 static void tlog_handle_real_log(log_msg_t *msg);
 static void record_enqueue(int8_t type, log_record_t *record, bool force_sync);
@@ -241,7 +241,7 @@ static void record_enqueue(int8_t type, log_record_t *record, bool force_sync)
     uint8_t buf[RECORD_MAX_LEN];
     uint16_t len = tlog_fill_record_buf(record, buf);   //将record的data数据拷贝到buf里
 
-#if DEBUG_PRINTF
+#if DEBUG_LOG
     printf("len = %d\n",len);
     printf("buf: %s\n", buf);
 #endif
@@ -264,11 +264,11 @@ static void record_enqueue(int8_t type, log_record_t *record, bool force_sync)
 
         memcpy(cache->buf + cache->tail, buf, len);     //todo0914：这个cache是做什么用的？UTOS里直接打印到串口或者存文件，没有用到这个cache
 
-#if DEBUG_PRINTF        
+#if DEBUG_LOG
         printf("cache->buf = %s\n",cache->buf);
 #endif
         cache->tail += len;
-#if DEBUG_PRINTF
+#if DEBUG_LOG
         printf("cache->tail = %d\n",cache->tail);       //0914,cache->tail = len
 #endif
 
@@ -296,7 +296,7 @@ static void tlog_dequeue()
 
     TEXT file_path[MAX_FILE_PATH_LEN];
     sprintf(file_path, "%s/terminal.log", "/mnt/e/1Code/my_code/linux_stu");
-#if DEBUG_PRINTF
+#if DEBUG_LOG
     printf("\033[32mfile_path = %s\033[0m\n",file_path);
 #endif
 
@@ -307,13 +307,15 @@ static void tlog_dequeue()
 
     int32_t detectFileLen = lcp_get_file_size(file_path);
 
-#if DEBUG_PRINTF
+#if DEBUG_LOG
     printf("detectFileLen = %d\n",detectFileLen);
 #endif
 
     if(detectFileLen != -1 && logfile->len != (uint32_t)detectFileLen)
     {
+#if DEBUG_LOG
         printf("\033[31mlogfile->len = detectFileLen\033[0m\n");
+#endif
         logfile->len = detectFileLen;
     }
 
@@ -329,7 +331,7 @@ static void tlog_dequeue()
         logfile->len = 0;
     }
     // printf("%s %d\n", __TIME__, __LINE__);
-#if DEBUG_PRINTF
+#if DEBUG_LOG
     printf("logfile->len + cache->tail = %d + %d = %d\n",logfile->len, cache->tail,logfile->len + cache->tail);
     printf("logfile->size = %d\n",logfile->size);
 #endif
@@ -357,7 +359,9 @@ static void tlog_dequeue()
         cache->tail = 0;
         cache->flush_time = time(NULL);
         fsync(logfile->fd);
+#if DEBUG_LOG
         printf("\033[32m%s line: %d Code_sucess_end!\n\033[0m", __TIME__, __LINE__);
+#endif
     }
 }
 
