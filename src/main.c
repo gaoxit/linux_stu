@@ -4,7 +4,8 @@
 #define DIR_FILE        0   //删除文件夹功能验证
 #define TIMER           0   //timer相关功能单元测试
 #define TASK            0   //任务相关功能
-#define SHELL           1   //shell脚本相关功能
+#define SHELL           0   //shell脚本相关功能
+#define TEST_SNPRINTF   0   //测试字符串拼接，用于录波cfg文件一次写文件
 
 
 #if LIB_STU
@@ -149,6 +150,33 @@ int main(void)
     // plm_tlog_error("RUN_TIME", "heart beats: %s", __TIME__);  
     #if SHELL
     shell_printf_input();
+    #endif
+
+    char str_buf[1024] = {0};
+    char str_tmp[64] = {0};
+    int str_len = 0;
+    int str_offset = 0;
+
+    #if TEST_SNPRINTF
+    #define FAULT_WAVE_CFG_CONFIG_VALUE ",0,0,-32768,32767,1,1,p"   //录波cfg文件共同需要的内容
+
+    str_len = snprintf(str_buf, sizeof(str_tmp), "%s,01,1999\r\n", "test");
+    str_offset += str_len;
+    printf("str_len1 = %d\n",str_len);
+    printf("str_offset1 = %d\n",str_offset);
+
+    str_len = snprintf(str_buf + str_offset, sizeof(str_tmp), "9,8A,1D\r\n");
+    str_offset += str_len;
+    printf("str_len2 = %d\n",str_len);
+    printf("str_offset2 = %d\n",str_offset);
+
+    str_len = snprintf(str_buf + str_offset, sizeof(str_tmp), "1,IA1,A,FTU,A,%.6f%s\r\n", 3.1415926, FAULT_WAVE_CFG_CONFIG_VALUE);
+    str_offset += str_len;
+    printf("str_len3 = %d\n",str_len);
+    printf("str_offset3 = %d\n",str_offset);
+
+    printf("str_buf: %s\n", str_buf);
+    printf("sizeof(str_buf): %d\n", (int)strlen(str_buf));
     #endif
 
 
