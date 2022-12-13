@@ -38,12 +38,13 @@ SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections")
 
 # include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+#date +LINUX_%y%m%d_%H%M_V1.01      将当前时间年月日时分写入到LINUX_%y%m%d_%H%M_V1.01中
 execute_process(COMMAND date +LINUX_%y%m%d_%H%M_V1.01
     OUTPUT_VARIABLE GCC_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # 注释：
-# 1.OUTPUT_STRIP_TRAILING_WHITESPACE:删除字符串尾的换行符
-# 2.git describe返回git的节点和tag信息；--abbrev=10指定commit号显示10个字符；--dirty如果当前commit之后有新的提交(本地有修改不提交也会dirty)则最后加-dirty表示
+# 1.OUTPUT_STRIP_TRAILING_WHITESPACE:删除字符串尾的换行符，OUTPUT_VARIABLE：标准输出到变量
+# 2.git describe返回git的节点和tag信息，以及距离上次tag提交了多少次commit；--abbrev=10指定commit号显示10个字符(默认显示8个字符)；--dirty如果当前commit之后有新的提交(本地有修改不提交也会dirty)则最后加-dirty表示
 execute_process(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMAND git describe --always --abbrev=10 --dirty
     OUTPUT_VARIABLE SHA_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -55,9 +56,10 @@ message("${Escape}[33m${GCC_VER}${Escape}[0m")
 message("${Escape}[33m${SHA_VER}${Escape}[0m")
 
 execute_process(COMMAND date
-    OUTPUT_VARIABLE cur_time)
+    OUTPUT_VARIABLE cur_time)           #打印当前时间
 message("${Escape}[3m${cur_time}${Escape}[0m")
 
+#configure_file(input output options)       将input文件中的@var@或者${var}替换成cmake中指定的值
 configure_file(version.h version.h)
 
 add_executable(my_linux.bin ${ALL_SOURCES})            #生成可执行文件，第一个参数为生成的可执行文件名，第二个为源文件的路径

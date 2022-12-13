@@ -3,10 +3,10 @@
 #define SNPRINTF        0   //snprintf函数功能验证
 #define DIR_FILE        0   //删除文件夹功能验证
 #define TIMER           0   //timer相关功能单元测试
-#define TASK            0   //任务相关功能
+#define TASK            1   //任务相关功能
 #define SHELL           0   //shell脚本相关功能
 #define TEST_SNPRINTF   0   //测试字符串拼接，用于录波cfg文件一次写文件
-
+#define TEST_Global_Val 0   //测试全局变量赋值
 
 #if LIB_STU
 //装载、链接与库学习代码
@@ -70,7 +70,15 @@ gxt@LAPTOP-JM9VJP8V:/mnt/e/1Code/my_code/linux_stu/src$ size main.o
 #include "log_infc.h"
 #include "shell.h"
 
-
+static int g_array[3] ={0};
+int *array(void)
+{
+    int *a = g_array;
+    a[0] = 2;
+    a[1] = 7;
+    a[2] = 4;
+    return a;
+}
 
 int main(void)  
 {
@@ -136,7 +144,7 @@ int main(void)
     {
         static int i = 0;
         i++;
-        printf("\033[34m在main主线程中：i = %d \033[0m\n", i);
+        // printf("\033[34m在main主线程中：i = %d \033[0m\n", i);
 
         hal_sleep_in_s(1);
     }
@@ -178,6 +186,40 @@ int main(void)
     printf("str_buf: %s\n", str_buf);
     printf("sizeof(str_buf): %d\n", (int)strlen(str_buf));
     #endif
+
+    #if TEST_Global_Val
+    int *res = NULL;
+    res = array();
+    printf("res = %d,%d,%d\n", res[0],res[1],res[2]);
+    #endif
+#if 0
+#define CLOSE_LOOP_DATA_NUM 200
+    int16_t voltage[2][CLOSE_LOOP_DATA_NUM] = {0};
+    for(int i = 0; i < CLOSE_LOOP_DATA_NUM; i++)
+    {
+        voltage[0][i] = (i * 2);
+        voltage[1][i] = (i * 2 + 1);
+    }
+
+    uint8_t tmp[10 * 1024] = {0};
+    uint16_t pos = 0;
+    pos += snprintf(tmp + pos, sizeof(tmp) - pos, "index 0: ");
+
+    for (uint16_t i = 0; i < CLOSE_LOOP_DATA_NUM; i++)
+    {
+        pos += snprintf(tmp + pos, sizeof(tmp) - pos, "%d ", voltage[0][i]);
+    }
+
+    pos += snprintf(tmp + pos, sizeof(tmp) - pos, "\r\nindex 1: ");
+    for (uint16_t i = 0; i < CLOSE_LOOP_DATA_NUM; i++)
+    {
+        pos += snprintf(tmp + pos, sizeof(tmp) - pos, "%d ", voltage[1][i]);
+    }
+
+
+    protect_write_debug_vol_buf(tmp, pos);
+#endif
+
 
 
     return RES_OK;  

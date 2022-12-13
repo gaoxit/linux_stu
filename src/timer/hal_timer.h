@@ -49,6 +49,7 @@ typedef struct
 
 
 void hal_sleep_in_s(uint32_t s);
+void hal_sleep_in_ms(uint32_t ms);
 
 /**
  * @brief 获取系统启动以来的相对时间，单位ms
