@@ -23,6 +23,8 @@ FILE (GLOB ALL_SOURCES
 )
 
 include_directories(
+        "./build"
+
         "./src/"
         "./src/myprintf"
         "./src/file_infc"
